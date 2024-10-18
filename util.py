@@ -1,20 +1,8 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import numpy as np
-import matplotlib.pyplot as plt
-import os
-from PIL import Image
-from io import BytesIO
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from torch_dct import dct as torch_dct_dct, idct as torch_dct_idct
-from typing import Dict, List, Tuple
-from torchvision.datasets import ImageFolder
-
-cifar_path = '/fs/vulcan-datasets/CIFAR'
-imagenet_train_path = '/fs/vulcan-datasets/imagenet/train/'
 
 # transforms
 
@@ -24,96 +12,6 @@ train_transform = [transforms.ToTensor()]
 test_transform = [transforms.ToTensor()]
 train_transform = transforms.Compose(train_transform)
 test_transform = transforms.Compose(test_transform)
-
-
-def JPEGcompression(image, jpeg):
-    """
-    jpeg: controls jpeg compression quality (100 for no compression, 10 for high compression)
-    """
-    outputIoStream = BytesIO()
-    image.save(outputIoStream, "JPEG", quality=jpeg, optimize=True)
-    outputIoStream.seek(0)
-    return Image.open(outputIoStream)
-
-
-def sharpen_image(im, center_mean, random):
-    """
-    Given an image tensor sharpen it using a sharpening kernel
-    im: image tensor of shape (3, H, W)
-    center: the central value in the kernel
-    Returns:
-    sharpened image tensor of shape (3, H', W')
-    """
-    if random:
-        stddev = 0.1
-        center = np.random.normal(center_mean, stddev)
-        neighbor_mean = (center - 1) / 4
-        neighbor1 = np.random.normal(neighbor_mean, stddev)
-        neighbor2 = np.random.normal(neighbor_mean, stddev)
-        neighbor3 = np.random.normal(neighbor_mean, stddev)
-        neighbor4 = np.random.normal(neighbor_mean, stddev)
-        sharpen_kernel = torch.tensor(
-            [[0, -neighbor1, 0], [-neighbor2, center, -neighbor3],
-             [0, -neighbor4, 0]],
-            dtype=torch.float32).view(1, 1, 3, 3).repeat(3, 1, 1, 1)
-    else:
-        center = center_mean
-        neighbor = (center - 1) / 4
-        sharpen_kernel = torch.tensor(
-            [[0, -neighbor, 0], [-neighbor, center, -neighbor],
-             [0, -neighbor, 0]],
-            dtype=torch.float32).view(1, 1, 3, 3).repeat(3, 1, 1, 1)
-
-    sharpen_kernel = sharpen_kernel.to(im.device)
-    sharpened_im = torch.nn.functional.conv2d(im, sharpen_kernel,
-                                              groups=3).clamp(0, 1)
-    return sharpened_im
-
-
-## DCT
-
-
-def mask_dct(dct_image, percentage, imagenet=False):
-    """
-    dct_image: dct transformed image tensor of shape (3, H, W)
-    percentage: percentage of rows and columns to mask
-    Returns:
-    masked dct transformed image tensor of shape (3, H, W)
-    """
-
-    C, H, W = dct_image.shape
-    if imagenet:
-        num_rows = int(H * .4 * percentage / 100)
-        num_cols = int(W * .4 * percentage / 100)
-    else:
-        num_rows = int(H * percentage / 100)
-        num_cols = int(W * percentage / 100)
-    mask = np.zeros_like(dct_image)
-    mask[:, :num_rows, :num_cols] = 1
-
-    return dct_image * mask
-
-
-def get_dct_image(image, percentage, imagenet=False, norm='ortho'):
-    """
-    image: torch tensor
-    percentage: percentage of rows and columns to mask
-    Returns:
-    masked dct transformed image tensor of shape (3, H, W)
-    """
-    dct_rows = torch_dct_dct(image, norm=norm)
-    dct_cols = torch_dct_dct(dct_rows.transpose(1, 2),
-                             norm=norm).transpose(1, 2)
-
-    mask = mask_dct(dct_cols, percentage, imagenet)
-
-    idct_rows = torch_dct_idct(mask, norm=norm)
-    idct_cols = torch_dct_idct(idct_rows.transpose(1, 2),
-                               norm=norm).transpose(1, 2)
-    idct_cols = torch.clamp(idct_cols, 0, 1)
-
-    return idct_cols
-
 
 # CUDA
 
@@ -157,15 +55,15 @@ def get_filter_unlearnable(blur_parameter,
         cnns = np.stack([cnns[0]] * len(cnns))
 
     if dataset == 'cifar10':
-        unlearnable_dataset = datasets.CIFAR10(root=cifar_path,
+        unlearnable_dataset = datasets.CIFAR10(root='.',
                                                train=True,
-                                               download=False,
+                                               download=True,
                                                transform=train_transform)
         batch_size = 500
     else:
-        unlearnable_dataset = datasets.CIFAR100(root=cifar_path,
+        unlearnable_dataset = datasets.CIFAR100(root='.',
                                                 train=True,
-                                                download=False,
+                                                download=True,
                                                 transform=train_transform)
         batch_size = 500
 

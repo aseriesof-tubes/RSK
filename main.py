@@ -39,7 +39,7 @@ parser.add_argument('--transform',
                     default='rsk_ff',
                     choices=['ssk', 'ssk_ff', 'rsk', 'rsk_ff', 'ff', 'clean'])
 parser.add_argument('--sharp_center', type=float, default=2.5)
-parser.add_argument('--ff_percentage', type=int, default=None)
+parser.add_argument('--ff_percentage', type=int, default=30)
 
 args = parser.parse_args()
 

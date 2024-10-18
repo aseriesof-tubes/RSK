@@ -6,29 +6,6 @@ It was accepted to the NeurIPS Workshop, **The 3rd New Frontiers in Adversarial 
 
 Dohyun Kim, Pedro Sandoval-Segura
 
-## File Descriptions
-
--   `main.py`: The main script for training the model.
--   `augments.py`: Contains functions for data augmentation, including RSK and FF.
--   `resnet.py`: Implements ResNet-18
--   `util.py`: Utility functions
--   `requirements.txt`: Lists the Python dependencies for the project.
-
-## Requirements
-
-The project requires the following Python packages:
-
-```
-torch
-torchvision
-matplotlib
-numpy
-tqdm
-argparse
-Pillow
-torch_dct
-```
-
 ## Installation
 
 1. Create a conda environment:
@@ -52,15 +29,6 @@ torch_dct
 
 ## Usage
 
-To train the model with default settings on CIFAR-10 dataset:
-
-```
-python main.py
-```
-This will train a ResNet-18 on the CUDA dataset with the RSK + FF transform applied. 
-
-### Command-line Arguments
-
 You can customize the training process using various command-line arguments. Here are some key options:
 
 -   `--epochs`: Number of training epochs (default: 60)
@@ -78,5 +46,39 @@ Example:
 python main.py --epochs 100 --dataset cifar100 --transform rsk --ud clean
 ```
 
-This command will train the model for 100 epochs on CIFAR-100 dataset using RSK augmentation without CUDA dataset poisoning.
+This command will train a ResNet-18 for 100 epochs on the CIFAR-100 dataset using RSK augmentation without CUDA dataset poisoning.
 
+To train the model with default settings on CIFAR-10 dataset:
+
+```
+python main.py
+```
+This will train a ResNet-18 on the CUDA dataset with the RSK + FF transform applied. 
+
+## File Descriptions
+
+-   `main.py`: The main script for training the model.
+-   `augments.py`: Contains functions for data augmentation, including RSK and FF.
+-   `resnet.py`: Implements ResNet-18
+-   `util.py`: Utility functions
+-   `requirements.txt`: Lists the Python dependencies for the project.
+
+## Use RSK and SSK + FF
+If you want to use our SSK + FF or RSK + FF transforms, use the following code: 
+```
+train_transform = transforms.Compose([ToTensor(), LambdaSSK, LambdaFF]) # SSK
+train_transform = transforms.Compose([ToTensor(), LambdaRSK, LambdaFF]) # RSK
+```
+and copy the `sharpen_image` and `get_dct_image` functions from `augments.py`, and also copy this: 
+```
+LambdaSSK = [
+        transforms.ToTensor(),
+        transforms.Lambda(
+            lambda x: sharpen_image(x, center_mean=sharp_center, random=False))
+    ]
+LambdaRSK = [
+        transforms.ToTensor(),
+        transforms.Lambda(
+            lambda x: sharpen_image(x, center_mean=sharp_center, random=True))
+    ]
+```
