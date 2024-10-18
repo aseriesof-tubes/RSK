@@ -18,27 +18,6 @@ SSK_FF = transforms.Compose([ToTensor(),
 ```
 and copy the `sharpen_image` and `get_dct_image` functions from `augments.py`.
 
-## Installation
-
-1. Create a conda environment:
-
-   ```
-   conda create -n rsk python=3.10
-   conda activate rsk
-   ```
-
-2. Clone this repository:
-
-   ```
-   git clone https://github.com/aseriesof-tubes/rsk.git
-   cd rsk
-   ```
-
-2. Install the required packages:
-   ```
-   pip install -r requirements.txt
-   ```
-
 ## Usage
 
 You can customize the training process using various command-line arguments. Here are the options:
@@ -74,3 +53,24 @@ This will train a ResNet-18 on the CUDA dataset with the RSK + FF transform appl
 -   `resnet.py`: Implements ResNet-18
 -   `util.py`: Utility functions
 -   `requirements.txt`: Lists the Python dependencies for the project.
+
+## Installation
+
+1. Create a conda environment:
+
+   ```
+   conda create -n rsk python=3.10
+   conda activate rsk
+   ```
+
+2. Clone this repository:
+
+   ```
+   git clone https://github.com/aseriesof-tubes/rsk.git
+   cd rsk
+   ```
+
+2. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
