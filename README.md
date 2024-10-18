@@ -6,6 +6,18 @@ It was accepted to the NeurIPS Workshop, **The 3rd New Frontiers in Adversarial 
 
 Dohyun Kim, Pedro Sandoval-Segura
 
+## Use RSK and SSK + FF
+If you want to use our SSK + FF or RSK + FF transforms, use the following code: 
+```python
+RSK_FF = transforms.Compose([ToTensor(), 
+                                      transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=True)), 
+                                      transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
+SSK_FF = transforms.Compose([ToTensor(), 
+                                      transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=False)), 
+                                      transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
+```
+and copy the `sharpen_image` and `get_dct_image` functions from `augments.py`.
+
 ## Installation
 
 1. Create a conda environment:
@@ -29,7 +41,7 @@ Dohyun Kim, Pedro Sandoval-Segura
 
 ## Usage
 
-You can customize the training process using various command-line arguments. Here are some key options:
+You can customize the training process using various command-line arguments. Here are the options:
 
 -   `--epochs`: Number of training epochs (default: 60)
 -   `--dataset`: Choose between 'cifar10' and 'cifar100' (default: 'cifar10')
@@ -62,23 +74,3 @@ This will train a ResNet-18 on the CUDA dataset with the RSK + FF transform appl
 -   `resnet.py`: Implements ResNet-18
 -   `util.py`: Utility functions
 -   `requirements.txt`: Lists the Python dependencies for the project.
-
-## Use RSK and SSK + FF
-If you want to use our SSK + FF or RSK + FF transforms, use the following code: 
-```
-train_transform = transforms.Compose([ToTensor(), LambdaSSK, LambdaFF]) # SSK
-train_transform = transforms.Compose([ToTensor(), LambdaRSK, LambdaFF]) # RSK
-```
-and copy the `sharpen_image` and `get_dct_image` functions from `augments.py`, and also copy this: 
-```
-LambdaSSK = [
-        transforms.ToTensor(),
-        transforms.Lambda(
-            lambda x: sharpen_image(x, center_mean=sharp_center, random=False))
-    ]
-LambdaRSK = [
-        transforms.ToTensor(),
-        transforms.Lambda(
-            lambda x: sharpen_image(x, center_mean=sharp_center, random=True))
-    ]
-```
