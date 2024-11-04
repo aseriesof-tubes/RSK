@@ -10,11 +10,11 @@ Dohyun Kim, Pedro Sandoval-Segura
 If you want to use our SSK + FF or RSK + FF transforms, use the following code: 
 ```python
 RSK_FF = transforms.Compose([ToTensor(), 
-                                      transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=True)), 
-                                      transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
+         transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=True)),
+         transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
 SSK_FF = transforms.Compose([ToTensor(), 
-                                      transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=False)), 
-                                      transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
+         transforms.Lambda(lambda x: sharpen_image(x, center_mean=sharp_center, random=False)), 
+         transforms.Lambda(lambda x: get_dct_image(x, ff_percentage))])
 ```
 and copy the `sharpen_image` and `get_dct_image` functions from `augments.py`.
 
